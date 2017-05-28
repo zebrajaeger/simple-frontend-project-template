@@ -20,91 +20,109 @@ var mainBowerFiles = require('main-bower-files');
 // DEBUG
 var browserSync = require('browser-sync').create();
 
-gulp.task('hello', function() {
-  console.log(gulp.src('source-files'));
+
+gulp.task('vendor-css', function () {
+    return gulp.src(['app/vendor/css/**/*.css'])
+        .pipe(concat('app.css'))
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
+
+        .pipe(rename('app.min.css'))
+        .pipe(minifycss())
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
 
-gulp.task('scss', function() {
-  return gulp.src('app/scss/**/*.scss')
-    .pipe(concat('app.css'))
-    .pipe(sass())
-    .pipe(gulp.dest(dest))
+gulp.task('scss', function () {
+    return gulp.src(['app/scss/**/*.scss'])
+        .pipe(concat('app.css'))
+        .pipe(sass())
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 
-    .pipe(rename('app.min.css'))
-    .pipe(minifycss())
-    .pipe(gulp.dest(dest))
-
-    .pipe(browserSync.reload({
-      stream: true
-    }))
+        .pipe(rename('app.min.css'))
+        .pipe(minifycss())
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
 
-gulp.task('js', function() {
-  return gulp.src('app/js/**/*.js') 
-    .pipe(sourcemaps.init())
+gulp.task('js', function () {
+    return gulp.src('app/js/**/*.js')
+        .pipe(sourcemaps.init())
+        .pipe(concat('app.js'))
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 
-    .pipe(concat('app.js'))
-    .pipe(gulp.dest(dest))
-
-    .pipe(rename('app.min.js'))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('map'))
-    .pipe(gulp.dest(dest))
-
-    .pipe(browserSync.reload({
-      stream: true
-    }))
+        .pipe(rename('app.min.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('map'))
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
-gulp.task('vendor', function() {
-    var files = mainBowerFiles().concat('app/vendor/**/*.js');
-	console.log(files);
+gulp.task('vendor-js', function () {
+    var files = mainBowerFiles().concat('app/vendor/js/**/*.js');
 
     return gulp.src(files)
-    .pipe(sourcemaps.init())
-    .pipe(concat('vendor.js'))
-    .pipe(gulp.dest(dest))
+        .pipe(sourcemaps.init())
+        .pipe(concat('vendor.js'))
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 
-    .pipe(rename('vendor.min.js'))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('map'))
-
-    .pipe(gulp.dest(dest))
-    .pipe(browserSync.reload({
-      stream: true
-    }))
+        .pipe(rename('vendor.min.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('map'))
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
 
-gulp.task('html', function() {
-  return gulp.src('app/**/*.html') 
-    .pipe(gulp.dest(dest))
-    .pipe(browserSync.reload({
-      stream: true
-    }))
+gulp.task('html', function () {
+    return gulp.src('app/**/*.html')
+        .pipe(gulp.dest(dest))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
 
-gulp.task('browserSync', function() {
-  browserSync.init({
-    server: {
-      baseDir: dest
-    },
-  })
+gulp.task('browserSync', function () {
+    browserSync.init({
+        server: {
+            baseDir: dest
+        },
+    })
 });
 
-gulp.task('serve', ['browserSync', 'html', 'scss', 'js', 'vendor'], function (){
-  gulp.watch('app/**/*.html', ['html']); 
-  gulp.watch('app/scss/**/*.scss', ['scss']); 
-  gulp.watch('app/js/**/*.js', ['js']); 
+gulp.task('install', function () {
+    return gulp.src(['./bower.json', './package.json'])
+        .pipe(install());
 });
 
-
-gulp.task('install', function() {
-  return gulp.src(['./bower.json', './package.json'])
-  .pipe(install());
+gulp.task('serve', ['install', 'browserSync', 'html', 'vendor-css', 'scss', 'js', 'vendor-js'], function () {
+    gulp.watch('app/**/*.html', ['html']);
+    gulp.watch('app/scss/**/*.scss', ['scss']);
+    gulp.watch('app/js/**/*.js', ['js']);
+    gulp.watch('app/vendor/js/**/*.js', ['vendor-js']);
+    gulp.watch('app/vendor/css/**/*.js', ['vendor-css']);
 });
 
 gulp.task('default', ['serve']);
