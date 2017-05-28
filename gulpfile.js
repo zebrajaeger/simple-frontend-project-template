@@ -23,13 +23,13 @@ var browserSync = require('browser-sync').create();
 
 gulp.task('vendor-css', function () {
     return gulp.src(['app/vendor/css/**/*.css'])
-        .pipe(concat('app.css'))
+        .pipe(concat('vendor.css'))
         .pipe(gulp.dest(dest))
         .pipe(browserSync.reload({
             stream: true
         }))
 
-        .pipe(rename('app.min.css'))
+        .pipe(rename('vendor.min.css'))
         .pipe(minifycss())
         .pipe(gulp.dest(dest))
         .pipe(browserSync.reload({
